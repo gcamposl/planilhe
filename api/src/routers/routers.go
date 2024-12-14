@@ -14,7 +14,13 @@ type Router struct {
 	RequireAuth bool
 }
 
-// Generate returns a new router
-func Generate() *mux.Router {
-	return mux.NewRouter()
+// Configure configure all routes
+func Configure(r *mux.Router) *mux.Router {
+	routes := userRoutes
+
+	for _, route := range routes {
+		r.HandleFunc(route.Method, route.Function).Methods(route.Method)
+	}
+
+	return r
 }
