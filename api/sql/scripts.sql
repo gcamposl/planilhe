@@ -1,14 +1,13 @@
 CREATE DATABASE IF NOT EXISTS planilhe;
 USE planilhe;
 
-
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    nick VARCHAR(255) NOT NULL unique,
-    email VARCHAR(255) NOT NULL unique,
+    nick VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    created_at_dt TIMESTAMP DEFAULT current_timestamp(),
-) ENGINE=InnoDB;
+    created_at_dt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=INNODB;
