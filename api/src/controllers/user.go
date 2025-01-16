@@ -3,6 +3,8 @@ package controllers
 import (
 	"api/src/database"
 	"api/src/models"
+	"api/src/repositories"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -16,13 +18,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(err)
 	}
 
-	buildUser(body)
+	u := buildUser(body)
+	db := connect()
 
-	db, err := database.Connect()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	repo := repositories.NewUserRepository(db)
+	repo.Create(u)
 }
 
 // GetAllUsers returns all users
@@ -52,4 +52,13 @@ func buildUser(body []byte) models.User {
 	}
 
 	return user
+}
+
+func connect() *sql.DB {
+	db, err := database.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return db
 }
