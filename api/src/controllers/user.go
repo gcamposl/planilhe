@@ -6,9 +6,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -33,13 +31,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo := repositories.NewUserRepository(db)
-	userId, err := repo.Create(user)
+	user.ID, err = repo.Create(user)
 	if err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
 	}
 	defer db.Close()
 
-	w.Write([]byte(fmt.Sprintf("Inserted id: %d", userId)))
+	responses.JSON(w, http.StatusCreated, user)
+	// w.Write([]byte(fmt.Sprintf("Inserted id: %d", userId)))
 }
 
 // GetAllUsers returns all users
