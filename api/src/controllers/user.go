@@ -4,7 +4,7 @@ import (
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
-	"database/sql"
+	"api/src/responses"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -16,14 +16,24 @@ import (
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
 	}
 
-	u := buildUser(body)
-	db := connect()
+	var user models.User
+	if err := json.Unmarshal(body, &user); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	repo := repositories.NewUserRepository(db)
-	userId, err := repo.Create(u)
+	userId, err := repo.Create(user)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,22 +60,4 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 // DeleteUser delete user by id
 func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("created user"))
-}
-
-func buildUser(body []byte) models.User {
-	var user models.User
-	if err := json.Unmarshal(body, &user); err != nil {
-		log.Fatal(err)
-	}
-
-	return user
-}
-
-func connect() *sql.DB {
-	db, err := database.Connect()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return db
 }
