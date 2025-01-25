@@ -17,6 +17,7 @@ type User struct {
 	DeletedAt time.Time `json:"deleted_at,omitempty"`
 }
 
+// Prepare call the methods for validation and formatting the user data
 func (user *User) Prepare() error {
 	if err := user.validate(); err != nil {
 		return err
