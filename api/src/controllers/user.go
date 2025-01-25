@@ -39,7 +39,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	responses.JSON(w, http.StatusCreated, user)
-	// w.Write([]byte(fmt.Sprintf("Inserted id: %d", userId)))
 }
 
 // GetAllUsers returns all users
