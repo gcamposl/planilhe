@@ -41,12 +41,10 @@ func (repo user) Create(user models.User) (uint64, error) {
 
 // Find returns all users that match the nickname
 func (repo user) Find(nick string) ([]models.User, error) {
+	query := "select id, name, nick, email, created_at from users where nick like ?"
 	nick = fmt.Sprintf("%%%s%%", nick)
+	lines, err := repo.db.Query(query, nick)
 
-	lines, err := repo.db.Query(
-		"select id, name, nick, email, created_at from users where nick like ?",
-		nick,
-	)
 	if err != nil {
 		return nil, err
 	}
@@ -69,4 +67,28 @@ func (repo user) Find(nick string) ([]models.User, error) {
 	}
 
 	return users, nil
+}
+
+// FindByID returns a user by id
+func (repo user) FindById(id uint64) (models.User, error) {
+	query := "select id, name, nick, email, created_at from users where id = ?"
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer stmt.Close()
+
+	line := stmt.QueryRow(id)
+	var user models.User
+	if err := line.Scan(
+		&user.ID,
+		&user.Name,
+		&user.Nick,
+		&user.Email,
+		&user.CreatedAt,
+	); err != nil {
+		return models.User{}, err
+	}
+
+	return user, nil
 }
