@@ -87,6 +87,10 @@ func (repo user) FindById(id uint64) (models.User, error) {
 		&user.Email,
 		&user.CreatedAt,
 	); err != nil {
+		if err == sql.ErrNoRows {
+			return models.User{}, err
+		}
+
 		return models.User{}, err
 	}
 

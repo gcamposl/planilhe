@@ -5,6 +5,7 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
+	"database/sql"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -90,6 +91,11 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	repo := repositories.NewUserRepository(db)
 	user, err := repo.FindById(userId)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			responses.JSON(w, http.StatusNotFound, err)
+			return
+		}
+
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
