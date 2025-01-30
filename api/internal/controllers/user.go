@@ -15,6 +15,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	register = "register"
+)
+
 // CreateUser create user in database
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
@@ -29,7 +33,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := user.Prepare(); err != nil {
+	if err := user.Prepare(register); err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
@@ -75,7 +79,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 
-	userId, err := strconv.ParseUint(parameters["id"], 10, 64)
+	userID, err := strconv.ParseUint(parameters["id"], 10, 64)
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
@@ -89,7 +93,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
-	user, err := repo.FindById(userId)
+	user, err := repo.FindById(userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			responses.JSON(w, http.StatusNotFound, err)
@@ -105,7 +109,46 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateUser update user by id
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("created user"))
+	parameters := mux.Vars(r)
+
+	userID, err := strconv.ParseUint(parameters["id"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var user models.User
+	if err := json.Unmarshal(body, &user); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewUserRepository(db)
+	user, err = repo.FindById(userID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			responses.JSON(w, http.StatusNotFound, err)
+			return
+		}
+
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	// update user here...
 }
 
 // DeleteUser delete user by id
