@@ -15,10 +15,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-const (
-	register = "register"
-)
-
 // CreateUser create user in database
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
@@ -33,7 +29,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := user.Prepare(register); err != nil {
+	if err := user.Prepare("register"); err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
@@ -128,6 +124,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
+	user.ID = userID
+
+	if err := user.Prepare("edit"); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
 	db, err := database.Connect()
 	if err != nil {
@@ -137,18 +139,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repo := repositories.NewUserRepository(db)
-	user, err = repo.FindById(userID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			responses.JSON(w, http.StatusNotFound, err)
-			return
-		}
-
+	if err = repo.Update(user); err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	// update user here...
+	responses.JSON(w, http.StatusNoContent, nil)
 }
 
 // DeleteUser delete user by id

@@ -6,17 +6,17 @@ import (
 	"fmt"
 )
 
-type user struct {
+type User struct {
 	db *sql.DB
 }
 
 // NewUserRepository creates a new user repository
-func NewUserRepository(db *sql.DB) *user {
-	return &user{db}
+func NewUserRepository(db *sql.DB) *User {
+	return &User{db}
 }
 
 // Create creates a new user
-func (repo user) Create(user models.User) (uint64, error) {
+func (repo User) Create(user models.User) (uint64, error) {
 	stmt, err := repo.db.Prepare(
 		"insert into users (name, nick, email, password) values (?, ?, ?, ?)",
 	)
@@ -40,7 +40,7 @@ func (repo user) Create(user models.User) (uint64, error) {
 }
 
 // Find returns all users that match the nickname
-func (repo user) Find(nick string) ([]models.User, error) {
+func (repo User) Find(nick string) ([]models.User, error) {
 	query := "select id, name, nick, email, created_at from users where nick like ?"
 	nick = fmt.Sprintf("%%%s%%", nick)
 	lines, err := repo.db.Query(query, nick)
@@ -70,7 +70,7 @@ func (repo user) Find(nick string) ([]models.User, error) {
 }
 
 // FindByID returns a user by id
-func (repo user) FindById(id uint64) (models.User, error) {
+func (repo User) FindById(id uint64) (models.User, error) {
 	query := "select id, name, nick, email, created_at from users where id = ?"
 	stmt, err := repo.db.Prepare(query)
 	if err != nil {
@@ -95,4 +95,22 @@ func (repo user) FindById(id uint64) (models.User, error) {
 	}
 
 	return user, nil
+}
+
+// Update updates a user
+func (repo User) Update(user models.User) error {
+	stmt, err := repo.db.Prepare(
+		"update users set name = ?, nick = ?, email = ? where id = ?",
+	)
+
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	if _, err = stmt.Exec(user.Name, user.Nick, user.Email, user.ID); err != nil {
+		return err
+	}
+
+	return nil
 }
