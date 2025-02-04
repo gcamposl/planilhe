@@ -114,3 +114,20 @@ func (repo User) Update(user models.User) error {
 
 	return nil
 }
+
+// Delete deletes a user
+func (repo User) Delete(id uint64) error {
+	stmt, err := repo.db.Prepare(
+		"delete from users where id = ?",
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if _, err = stmt.Exec(id); err != nil {
+		return err
+	}
+
+	return nil
+}
