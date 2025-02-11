@@ -97,6 +97,26 @@ func (repo User) FindById(id uint64) (models.User, error) {
 	return user, nil
 }
 
+// FindByEmail returns a user by email
+func (repo User) FindByEmail(email string) (models.User, error) {
+	query := "select id, password from users where email = ?"
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer stmt.Close()
+
+	line := stmt.QueryRow(email)
+	var user models.User
+	if err := line.Scan(&user.ID, &user.Password); err != nil {
+		if err == sql.ErrNoRows {
+			return models.User{}, err
+		}
+	}
+
+	return user, nil
+}
+
 // Update updates a user
 func (repo User) Update(user models.User) error {
 	stmt, err := repo.db.Prepare(
