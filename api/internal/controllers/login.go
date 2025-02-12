@@ -5,8 +5,8 @@ import (
 	"api/internal/models"
 	"api/internal/repositories"
 	"api/internal/responses"
+	"api/internal/security"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -38,5 +38,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(userSaved)
+	if err = security.VerifyPassword(userSaved.Password, user.Password); err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	w.Write([]byte("Login success"))
 }
