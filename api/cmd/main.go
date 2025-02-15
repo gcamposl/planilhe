@@ -8,6 +8,11 @@ import (
 	"net/http"
 )
 
+func init() {
+	key := make([]byte, 64)
+	fmt.Println(key)
+}
+
 func main() {
 	config.Load()
 	r := router.Generate()
