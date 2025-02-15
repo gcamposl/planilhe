@@ -14,6 +14,8 @@ var (
 	ConnectionString = ""
 	// Port is the port where the database is running
 	Port = 0
+	// SecretKey is the key used to sign the JWT (json web token)
+	SecretKey []byte
 )
 
 // Load loads the configuration
@@ -34,4 +36,6 @@ func Load() {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_DATABASE"),
 	)
+
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }
