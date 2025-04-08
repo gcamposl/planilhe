@@ -5,9 +5,17 @@ import (
 	"net/http"
 )
 
-func Auth(next http.Handler) http.HandlerFunc {
+// Logger writes request informations on terminal
+func Logger(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Printf("\n %s %s %s", r.Method, r.RequestURI, r.Host)
+	}
+}
+
+// Authenticate if user is logged in
+func Auth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("validation...")
-		next.ServeHTTP(w, r)
+		next(w, r)
 	}
 }
