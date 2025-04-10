@@ -2,6 +2,7 @@ package auth
 
 import (
 	"api/internal/config"
+	"net/http"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -16,4 +17,9 @@ func CreateToken(userID uint64) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, permissions)
 
 	return token.SignedString([]byte(config.SecretKey))
+}
+
+// Validate token
+func ValidateToken(r *http.Request) error {
+	return nil
 }
