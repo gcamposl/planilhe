@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"api/internal/auth"
 	"api/internal/database"
 	"api/internal/models"
 	"api/internal/repositories"
 	"api/internal/responses"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -112,6 +114,14 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
+
+	userIDToken, err := auth.ExtractUserID(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	fmt.Println(userIDToken)
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
