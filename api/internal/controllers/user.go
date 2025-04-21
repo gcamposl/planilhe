@@ -8,7 +8,7 @@ import (
 	"api/internal/responses"
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -121,7 +121,13 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(userIDToken)
+	if userIDToken != userID {
+		responses.Error(
+			w,
+			http.StatusForbidden,
+			errors.New("it is not possible to update a user that is not yours"))
+		return
+	}
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
