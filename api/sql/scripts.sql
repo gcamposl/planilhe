@@ -2,6 +2,7 @@ CREATE DATABASE IF NOT EXISTS planilhe;
 USE planilhe;
 
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS transactions;
 
 -- USERS
 CREATE TABLE users (
