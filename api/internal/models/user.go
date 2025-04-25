@@ -32,6 +32,7 @@ func (user *User) Prepare(step string) error {
 
 	return nil
 }
+
 func (user *User) validate(step string) error {
 	if user.Name == "" {
 		return errors.New("name is required")
