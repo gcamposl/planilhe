@@ -6,8 +6,8 @@ import (
 )
 
 type Transactions struct {
-	ID              int       `json:"id,omitempty"`
-	UserID          int       `json:"user_id,omitempty"`
+	ID              uint64    `json:"id,omitempty"`
+	UserID          uint64    `json:"user_id,omitempty"`
 	Type            string    `json:"type,omitempty"` // 'income' or 'expensive'
 	Amount          float64   `json:"amount,omitempty"`
 	Description     string    `json:"description,omitempty"`

@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"api/internal/database"
 	"api/internal/models"
+	"api/internal/repositories"
 	"api/internal/responses"
 	"encoding/json"
 	"io"
@@ -27,7 +29,19 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//todo: continue...
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewTransactionRepository(db)
+	transaction.ID, err = repo.Create(transaction)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
 
 	responses.JSON(w, http.StatusCreated, transaction)
 }
