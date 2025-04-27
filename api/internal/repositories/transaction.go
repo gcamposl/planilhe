@@ -13,26 +13,26 @@ func NewTransactionRepository(db *sql.DB) *Transactions {
 	return &Transactions{db}
 }
 
-func (repo *Transactions) Create(trs models.Transactions) (uint64, error) {
-	sql := `
+func (repo *Transactions) Create(transaction models.Transaction) (uint64, error) {
+	query := `
 		insert into transactions 
 			(user_id, type, amount, description, category, transaction_date)
 		values
 			(?, ?, ?, ?, ?, ?)`
 
-	stmt, err := repo.db.Prepare(sql)
+	stmt, err := repo.db.Prepare(query)
 	if err != nil {
 		return 0, err
 	}
 	defer stmt.Close()
 
 	result, err := stmt.Exec(
-		trs.UserID,
-		trs.Type,
-		trs.Amount,
-		trs.Description,
-		trs.Category,
-		trs.TransactionDate,
+		transaction.UserID,
+		transaction.Type,
+		transaction.Amount,
+		transaction.Description,
+		transaction.Category,
+		transaction.TransactionDate,
 	)
 
 	if err != nil {
@@ -45,4 +45,52 @@ func (repo *Transactions) Create(trs models.Transactions) (uint64, error) {
 	}
 
 	return uint64(lastId), nil
+}
+
+func (repo *Transactions) Find(userID uint64) ([]models.Transaction, error) {
+	query := `
+		select 
+			id,
+			user_id,
+			type,
+			amount,
+			description,
+			category,
+			transaction_date,
+			created_at,
+			updated_at,
+			deleted_at
+		from transactions
+		where user_id = ?
+		order by transaction_date desc
+	`
+
+	stmt, err := repo.db.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var transactions []models.Transaction
+	for stmt.Next() {
+		var transaction models.Transaction
+		if err := stmt.Scan(
+			&transaction.ID,
+			&transaction.UserID,
+			&transaction.Type,
+			&transaction.Amount,
+			&transaction.Description,
+			&transaction.Category,
+			&transaction.TransactionDate,
+			&transaction.CreatedAt,
+			&transaction.UpdatedAt,
+			&transaction.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
 }

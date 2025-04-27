@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type Transactions struct {
+type Transaction struct {
 	ID              uint64    `json:"id,omitempty"`
 	UserID          uint64    `json:"user_id,omitempty"`
 	Type            string    `json:"type,omitempty"` // 'income' or 'expensive'
@@ -18,20 +18,20 @@ type Transactions struct {
 	DeletedAt       time.Time `json:"deleted_at,omitempty"`
 }
 
-func (trs *Transactions) Validate() error {
-	if trs.Amount <= 0 {
+func (transaction *Transaction) Validate() error {
+	if transaction.Amount <= 0 {
 		return errors.New("amount must be greater than 0")
 	}
 
-	if trs.Description == "" {
+	if transaction.Description == "" {
 		return errors.New("description is required")
 	}
 
-	if trs.Category == "" {
+	if transaction.Category == "" {
 		return errors.New("category is required")
 	}
 
-	if trs.TransactionDate.IsZero() {
+	if transaction.TransactionDate.IsZero() {
 		return errors.New("transaction date is required")
 	}
 

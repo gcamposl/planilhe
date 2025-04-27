@@ -21,7 +21,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var transaction models.Transactions
+	var transaction models.Transaction
 	if err := json.Unmarshal(body, &transaction); err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return

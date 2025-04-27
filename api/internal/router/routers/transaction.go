@@ -12,4 +12,10 @@ var transactionRoutes = []Router{
 		Function:    controllers.CreateTransaction,
 		RequireAuth: true,
 	},
+	{
+		URI:         "/transactions/{userID}",
+		Method:      http.MethodGet,
+		Function:    controllers.GetTransactions,
+		RequireAuth: true,
+	},
 }
