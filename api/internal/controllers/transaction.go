@@ -74,3 +74,29 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 
 	responses.JSON(w, http.StatusOK, transactions)
 }
+
+func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+
+	transactionID, err := strconv.ParseUint(parameters["transactionID"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewTransactionRepository(db)
+	err = repo.Delete(transactionID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
+}
