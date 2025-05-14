@@ -18,4 +18,10 @@ var transactionRoutes = []Router{
 		Function:    controllers.GetTransactions,
 		RequireAuth: true,
 	},
+	{
+		URI:         "/transactions/{transactionID}",
+		Method:      http.MethodDelete,
+		Function:    controllers.DeleteTransaction,
+		RequireAuth: true,
+	},
 }
