@@ -92,7 +92,7 @@ func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repo := repositories.NewTransactionRepository(db)
-	err = repo.Delete(transactionID) // todo: implement delete in repository
+	err = repo.Delete(transactionID)
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return

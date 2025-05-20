@@ -94,3 +94,15 @@ func (repo *Transactions) Find(userID uint64) ([]models.Transaction, error) {
 
 	return transactions, nil
 }
+
+func (repo *Transactions) Delete(transactionID uint64) error {
+	query := "delete transactions where id = ?"
+
+	stmt, err := repo.db.Query(query, transactionID)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	return nil
+}
