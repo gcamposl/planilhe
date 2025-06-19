@@ -151,3 +151,21 @@ func (repo User) Delete(id uint64) error {
 
 	return nil
 }
+
+// FindPassword returns the password of a user by id
+func (repo User) FindPassword(id uint64) (string, error) {
+	line, err := repo.db.Query("select password from users where id = ?")
+	if err != nil {
+		return "", err
+	}
+	defer line.Close()
+
+	var user models.User
+	if line.Next() {
+		if err = line.Scan(&user.Password); err != nil {
+			return "", err
+		}
+	}
+
+	return user.Password, nil
+}

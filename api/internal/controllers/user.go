@@ -241,4 +241,5 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	repositories := repositories.NewTransactionRepository(db)
+	savedPassword, err := repositories.FindPassword(userID)
 }
