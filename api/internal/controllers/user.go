@@ -260,4 +260,10 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err = repo.UpdatePassword(userID, string(passwordWithHash)); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusNoContent, nil)
 }
