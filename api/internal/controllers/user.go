@@ -6,6 +6,7 @@ import (
 	"api/internal/models"
 	"api/internal/repositories"
 	"api/internal/responses"
+	"api/internal/security"
 	"database/sql"
 	"encoding/json"
 	"errors"
@@ -237,9 +238,26 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	db, err := database.Connect()
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
+		return
 	}
 	defer db.Close()
 
-	repositories := repositories.NewTransactionRepository(db)
-	savedPassword, err := repositories.FindPassword(userID)
+	repo := repositories.NewUserRepository(db)
+	savedPassword, err := repo.FindPassword(userID)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err = security.VerifyPassword(savedPassword, password.ActualPassword); err != nil {
+		responses.Error(w, http.StatusUnauthorized, errors.New("actual password does not match"))
+		return
+	}
+
+	passwordWithHash, err := security.Hash(password.NewPassword)
+	if err != nil {
+		responses.Error(w, http.StatusBadGateway, err)
+		return
+	}
+
 }
