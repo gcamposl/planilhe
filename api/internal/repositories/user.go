@@ -169,3 +169,18 @@ func (repo User) FindPassword(id uint64) (string, error) {
 
 	return user.Password, nil
 }
+
+// UpdatePassword updates the password of a user
+func (repo User) UpdatePassword(id uint64, password string) error {
+	statement, err := repo.db.Prepare("update users set password = ? where id = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(password, id); err != nil {
+		return err
+	}
+
+	return nil
+}
