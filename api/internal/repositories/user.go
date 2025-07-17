@@ -154,7 +154,7 @@ func (repo User) Delete(id uint64) error {
 
 // FindPassword returns the password of a user by id
 func (repo User) FindPassword(id uint64) (string, error) {
-	line, err := repo.db.Query("select password from users where id = ?")
+	line, err := repo.db.Query("select password from users where id = ?", id)
 	if err != nil {
 		return "", err
 	}
@@ -172,13 +172,13 @@ func (repo User) FindPassword(id uint64) (string, error) {
 
 // UpdatePassword updates the password of a user
 func (repo User) UpdatePassword(id uint64, password string) error {
-	statement, err := repo.db.Prepare("update users set password = ? where id = ?")
+	stmt, err := repo.db.Prepare("update users set password = ? where id = ?")
 	if err != nil {
 		return err
 	}
-	defer statement.Close()
+	defer stmt.Close()
 
-	if _, err = statement.Exec(password, id); err != nil {
+	if _, err = stmt.Exec(password, id); err != nil {
 		return err
 	}
 
