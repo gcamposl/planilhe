@@ -2,6 +2,6 @@ package models
 
 // Password represents the password change request format
 type Password struct {
-	NewPassword    string `json:"newPassword"`
+	NewPassword    string `json:"new"`
 	ActualPassword string `json:"actual"`
 }
