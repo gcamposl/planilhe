@@ -27,8 +27,8 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if transaction.Validate() != nil {
-		responses.Error(w, http.StatusBadRequest, transaction.Validate())
+	if transaction.Validate(false) != nil {
+		responses.Error(w, http.StatusBadRequest, transaction.Validate(false))
 		return
 	}
 
@@ -49,6 +49,7 @@ func CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusCreated, transaction)
 }
 
+// GetTransactions returns all transactions for a given user ID
 func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 
@@ -75,6 +76,53 @@ func GetTransactions(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, transactions)
 }
 
+// UpdateTransaction updates an existing transaction
+func UpdateTransaction(w http.ResponseWriter, r *http.Request) {
+	parameters := mux.Vars(r)
+	transactionID, err := strconv.ParseUint(parameters["transactionID"], 10, 64)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	var transaction models.Transaction
+	if err := json.Unmarshal(body, &transaction); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if transaction.Validate(true) != nil {
+		responses.Error(w, http.StatusBadRequest, transaction.Validate(false))
+		return 
+	}
+
+	db, err := database.Connect()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	defer db.Close()
+
+	repo := repositories.NewTransactionRepository(db)
+	transaction.ID = transactionID
+	if err = repo.Update(transaction); err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, transaction)
+
+
+}
+
+// DeleteTransaction deletes a transaction by its ID
 func DeleteTransaction(w http.ResponseWriter, r *http.Request) {
 	parameters := mux.Vars(r)
 

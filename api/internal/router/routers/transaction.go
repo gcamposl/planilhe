@@ -19,6 +19,12 @@ var transactionRoutes = []Router{
 		RequireAuth: true,
 	},
 	{
+		URI: "/transactions/{transactionID}",
+		Method: http.MethodPut,
+		Function: controllers.UpdateTransaction,
+		RequireAuth: true,
+	},
+	{
 		URI:         "/transactions/{transactionID}",
 		Method:      http.MethodDelete,
 		Function:    controllers.DeleteTransaction,

@@ -13,6 +13,7 @@ func NewTransactionRepository(db *sql.DB) *Transactions {
 	return &Transactions{db}
 }
 
+// Create inserts a new transaction into the database
 func (repo *Transactions) Create(transaction models.Transaction) (uint64, error) {
 	query := `
 		insert into transactions 
@@ -47,6 +48,7 @@ func (repo *Transactions) Create(transaction models.Transaction) (uint64, error)
 	return uint64(lastId), nil
 }
 
+// Find retrieves all transactions for a given user ID
 func (repo *Transactions) Find(userID uint64) ([]models.Transaction, error) {
 	query := `
 		select 
@@ -95,6 +97,7 @@ func (repo *Transactions) Find(userID uint64) ([]models.Transaction, error) {
 	return transactions, nil
 }
 
+// Delete removes a transaction from the database by its ID
 func (repo *Transactions) Delete(transactionID uint64) error {
 	query := "delete transactions where id = ?"
 
@@ -103,6 +106,40 @@ func (repo *Transactions) Delete(transactionID uint64) error {
 		return err
 	}
 	defer stmt.Close()
+
+	return nil
+}
+
+// Update modifies an existing transaction in the database
+func (repo *Transactions) Update(transaction models.Transaction) error {
+	query := `
+		update transactions set
+			type = ?,
+			amount = ?,
+			description = ?,
+			category = ?,
+			transaction_date = ?,
+			updated_at = now()
+		where id = ?`
+
+	stmt, err := repo.db.Prepare(query)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		transaction.Type,
+		transaction.Amount,
+		transaction.Description,
+		transaction.Category,
+		transaction.TransactionDate,
+		transaction.ID,
+	)
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
